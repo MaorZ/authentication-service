@@ -43,7 +43,29 @@ function verifyRefreshToken(user, refreshToken) {
 	});
 }
 
+function verifyResetPasswordToken(resetPasswordToken) {
+	return new Promise((resolve, reject) => {
+		jwt.verify(resetPasswordToken, config.jwtSecret, (err, decoded) => {
+			if (err) {
+				// the 401 code is for unauthorized status
+				reject(err);
+			}
+
+			const userId = decoded.sub;
+
+			// check if a user exists
+			return User.findById(userId, (userErr, user) => {
+				if (userErr || !user) {
+					return reject();
+				}
+				resolve(user);
+			});
+		});
+	});
+}
+
 module.exports = {
 	verifyToken,
-	verifyRefreshToken
+	verifyRefreshToken,
+	verifyResetPasswordToken
 };
