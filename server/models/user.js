@@ -24,7 +24,8 @@ const UserSchema = new mongoose.Schema({
 	},
 	tokenCreated: Date,
 	refreshTokenCreated: Date,
-	resetPasswordToken: String
+	resetPasswordGuid: String,
+	resetPasswordGuidCreated: Date
 });
 
 
@@ -55,11 +56,13 @@ UserSchema.methods.getRefreshToken = function getRefreshToken() {
 	}, config.refreshTokenSecret, {expiresIn: config.refreshTokenExpiration});
 };
 
-UserSchema.methods.getResetPasswordToken = function getResetPasswordToken() {
-	this.resetPasswordTokenCreated = new Date();
+UserSchema.methods.generateResetPasswordToken = function generateResetPasswordToken() {
+	this.resetPasswordGuidCreated = new Date();
+	this.resetPasswordGuid = 
 	return jwt.sign({
 		sub: this._id,
-		created: this.resetPasswordTokenCreated.toJSON()
+		created: this.resetPasswordGuidCreated.toJSON(),
+		guid: 
 	}, config.jwtSecret, {expiresIn: config.resetPasswordTokenExpiration});
 }
 

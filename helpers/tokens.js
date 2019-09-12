@@ -14,7 +14,7 @@ function verifyToken(token) {
 
 			// check if a user exists
 			return User.findById(userId, (userErr, user) => {
-				if (userErr || !user && user.tokenCreated === (new Date(decoded.created))) {
+				if (userErr || (!user && user.tokenCreated === (new Date(decoded.created)))) {
 					return reject();
 				}
 				resolve(user);

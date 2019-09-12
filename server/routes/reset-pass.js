@@ -1,32 +1,23 @@
 const config = require('../../config');
-const nodemailer = require("nodemailer");
-const { verifyResetPasswordToken } = require('../../helpers/tokens');
+const fs = require('fs');
+const {sendEmail} = require('../../helpers/email');
+const {verifyResetPasswordToken} = require('../../helpers/tokens');
 
 function resetPassword(req, res) {
-    return verifyRefreshToken(req.body.resetPasswordToken).then((user) => {
+    return verifyResetPasswordToken(req.body.resetPasswordToken).then((user) => {
         req.user = user;
         req.user.resetPasswordToken = undefined;
         req.user.password = req.body.newPassword;
 
         return req.user.save().then(() => {
-
-            var smtpTransport = nodemailer.createTransport({
-                service: config.mailProviderService,
-                auth: {
-                    user: config.mailProviderEmail,
-                    pass: config.mailProviderPassword
-                }
-            });
-
             var mailOptions = {
                 to: req.user.email,
                 from: config.mailProviderEmail,
                 subject: 'Password has been Reseted',
-                text: 'Hello,\n\n' +
-                    'This is a confirmation that the password for your account ' + req.user.email + ' has just been changed.\n'
+                text: fs.readFileSync('../assets/emails/pass-restarted.html', 'utf8')
             };
 
-            return smtpTransport.sendMail(mailOptions).then(err => {
+            return sendEmail(mailOptions).then(err => {
                 return res.json({
                     payload: {
                         user: {
