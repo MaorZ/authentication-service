@@ -13,6 +13,7 @@ function routes(app) {
 		.get('/api/users/:userId', require('./user'))
 		// Recovery APIs
 		.post('/api/forgot', require('./forgot-pass'))
+		.get('/api/resetPassword/:resetToken', require('./reset-pass-info'))
 		.post('/api/resetPassword', require('./reset-pass'));
 }
 

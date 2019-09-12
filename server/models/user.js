@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const config = require('../../config');
+const uuidv4 = require('uuid/v4');
 
 // define the User model schema
 const UserSchema = new mongoose.Schema({
@@ -24,8 +25,7 @@ const UserSchema = new mongoose.Schema({
 	},
 	tokenCreated: Date,
 	refreshTokenCreated: Date,
-	resetPasswordGuid: String,
-	resetPasswordGuidCreated: Date
+	resetPasswordGuid: String
 });
 
 
@@ -57,12 +57,11 @@ UserSchema.methods.getRefreshToken = function getRefreshToken() {
 };
 
 UserSchema.methods.generateResetPasswordToken = function generateResetPasswordToken() {
-	this.resetPasswordGuidCreated = new Date();
-	this.resetPasswordGuid = 
+	this.resetPasswordGuid = uuidv4();
 	return jwt.sign({
 		sub: this._id,
-		created: this.resetPasswordGuidCreated.toJSON(),
-		guid: 
+		created: new Date().toJSON(),
+		guid: this.resetPasswordGuid
 	}, config.jwtSecret, {expiresIn: config.resetPasswordTokenExpiration});
 }
 

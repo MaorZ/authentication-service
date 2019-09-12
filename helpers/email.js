@@ -1,11 +1,12 @@
 const nodemailer = require('nodemailer');
+const config = require('../config');
 
 function sendEmail(emailOptions) {
 	var smtpTransport = nodemailer.createTransport({
-        service: config.mailProviderService,
+        service: config.mailProviderSettings.service,
         auth: {
-            user: config.mailProviderEmail,
-            pass: config.mailProviderPassword
+            user: config.mailProviderSettings.email,
+            pass: config.mailProviderSettings.password
         }
     });
 

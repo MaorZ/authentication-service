@@ -4,30 +4,30 @@ const {sendEmail} = require('../../helpers/email');
 const {verifyResetPasswordToken} = require('../../helpers/tokens');
 
 function resetPassword(req, res) {
-    return verifyResetPasswordToken(req.body.resetPasswordToken).then((user) => {
+    User.findOne({resetPasswordGuid: req.body.resetPasswordGuid}, (err, user) => {
+        if(err || !user) {
+            return res.status(400).end();
+        }
+
         req.user = user;
-        req.user.resetPasswordToken = undefined;
+        req.user.resetPasswordGuid = undefined;
         req.user.password = req.body.newPassword;
 
-        return req.user.save().then(() => {
-            var mailOptions = {
-                to: req.user.email,
-                from: config.mailProviderEmail,
-                subject: 'Password has been Reseted',
-                text: fs.readFileSync('../assets/emails/pass-restarted.html', 'utf8')
-            };
+        var mailOptions = {
+            to: req.user.email,
+            from: config.mailProviderEmail,
+            subject: 'Password has been Restarted',
+            text: fs.readFileSync('../assets/emails/pass-restarted.html', 'utf8')
+        };
 
-            return sendEmail(mailOptions).then(err => {
-                return res.json({
-                    payload: {
-                        user: {
-                            email: req.user.email,
-                            name: req.user.name
-                        },
-                        message: 'Password has been restarted'
-                    }
-                });
-            });
+        sendEmail(mailOptions).then(err => {
+            // Log that the email has been sent
+        });
+
+        return req.user.save().then(() => {
+            return res.sendStatus(200);
+        }, () => {
+            return res.status(400).end();
         });
     });
 }

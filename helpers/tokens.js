@@ -52,10 +52,22 @@ function verifyResetPasswordToken(resetPasswordToken) {
 			}
 
 			const userId = decoded.sub;
+			const userResetPasswordGuid = decoded.guid;
+			const tokenCreated = new Date(decoded.created);
+
+			// Check if the token has expired
+			if (new Date().getTime() - tokenCreated.getTime() > Number(config.resetPasswordTokenExpiration)) {
+				return reject();
+			}
 
 			// check if a user exists
 			return User.findById(userId, (userErr, user) => {
 				if (userErr || !user) {
+					return reject();
+				}
+
+				// Check if user reset guid is equad to the decoded value
+				if (user.resetPasswordGuid !== userResetPasswordGuid) {
 					return reject();
 				}
 				resolve(user);
